@@ -9,4 +9,12 @@ def read_token():
 token = read_token()
 
 client = discord.Client()
+
+
+@client.event
+async def on_message(message):
+    if message.content.find("bruh") != -1:
+        await message.channel.send("bruh")
+
+
 client.run(token)
