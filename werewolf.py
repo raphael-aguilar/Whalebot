@@ -10,10 +10,6 @@ class WerewolfGame:
     def __init__(self, player_list, ruleset=None):
         """Takes a list of tuples for players, the tuples will be (player_id, player_name)"""
 
-        # Need to sort out how we are identifying the players, discord ID#, discord name,
-        # concatenation of both? eg. 'Martin#3769', or a tuple of both?
-        # I'm just using a variable player_id for now
-
         # a dictionary of player objects, with their player_id as the keys
         self.players = {}
 
@@ -23,8 +19,7 @@ class WerewolfGame:
         # probably a dict of {'role':{modifier1:value, modifier2:value},...}, with each role in play included just once
         # most will just be empty/default, these can be the arguments for when the roles are initialised
         # self.role_modifiers = {}
-        self.roles = {}
-
+        
         # list of roles in play, with each role occurring as many times as players with that role
         self.role_list = []
 
