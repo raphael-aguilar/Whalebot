@@ -60,6 +60,7 @@ class Player:
 
 
 class Role:
+    
     """The role for each player, with its own rules.
     Roles will have attributes & methods: team, team_appearance (eg. lycan), win_condition,
     first_night_behaviour, night_behaviour, night_order_precedence
