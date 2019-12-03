@@ -5,20 +5,13 @@ import discord
 prefix = ">>"
 
 def read_token():
-    with open("token.txt", "r") as f:
+    with open("./app/token.txt", "r") as f:
         lines = f.readlines()
         return lines[0].strip()
 
 token = read_token()
 
 client = discord.Client()
-
-
-
-command_dict = {"help": help_me,
-                "commands": commands
-               }
-
 
 @client.event
 async def on_message(message):
@@ -31,18 +24,27 @@ async def on_message(message):
 
         print("command: " + command + "\nargs: " + str(args))
 
+        await command_dict.get(command, help_me)(message, args)
+
 
 async def help_me(message, args=None):
-    await message.channel.send("""Type '>> + <command>' to use our commands, full list of commands in '>>commands'""")
+    await message.channel.send("""Type: `>> + <command>` to use our commands, full list of commands in `>>commands`""")
     
 async def commands(message, args=None):
     reply = "Commands:"
 
-    for i in command_dict.keys().sort:
-        line = "\n'" + prefix + i + "'"
-        reply.join(line)
+    for i in sorted(command_dict.keys()):
+        line = "\n`" + prefix + i + "`"
+        print(line)
+        reply = reply + line
 
+
+    print(reply)
     await message.channel.send(reply)
+
+command_dict = {"help": help_me,
+                "commands": commands
+               }
 
 
 client.run(token)
