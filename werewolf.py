@@ -1,5 +1,6 @@
 import random
 import discord
+from collections import defaultdict
 
 
 class WerewolfGame:
@@ -20,39 +21,64 @@ class WerewolfGame:
 
         # probably a dict of {'role':{modifier1:value, modifier2:value},...}, with each role in play included just once
         # most will just be empty/default, these can be the arguments for when the roles are initialised
+        # created from ruleset
         # self.role_modifiers = {}
 
         # list of roles in play, with each role occurring as many times as players with that role
+        # created from ruleset
         self.role_list = []
 
+        # a dictionary of players grouped by their roles, with the role name strings as keys,
+        # and a list of player objects as values
+        self.roles_players = defaultdict(list)
+        self.teams_players = defaultdict(list)
+
     def add_player(self, player_id, player_name):
-        """Add a new player to the game"""
+        """Instantiates a new player to the game, and adds them to the game's.players dictionary"""
 
         self.players[player_id] = Player(player_id, player_name)
 
     def assign_roles(self):
-        """Shuffle the role_list and assign each player a random role
-        Call once all players have been added"""
+        """Shuffle the role_list and assign each player a random role.
+        Also adds each player to the game's.roles_players dict and games's.teams_players dict.
+        Only call once all players have been added"""
 
         shuffled_role_list = self.role_list
         random.shuffle(shuffled_role_list)
 
         for player in self.players.values():
-            player.assign_role(shuffled_role_list.pop())
+            role_name = shuffled_role_list.pop()
 
-        ##To implement: lists of players of each role, eg. werewolves = []
+            player.assign_role(role_name)
+
+            self.roles_players[role_name].append(player)
+            self.teams_players[player.role.team].append(player)
 
     # GAMEPLAY
 
-    def number_role_alive(self, role_name):
-        """Returns an int, the number of remaining players of the role specified that are still alive"""
-        ##To implement: make this function more general, eg. number_alive(role='Werewolf'), number_alive(team=...)
+    def number_alive(self, role_name=None, team_name=None, custom_player_list=None):
+        """Returns an int, the number of remaining players of those specified that are still alive.
+        The players under consideration can be chosen by role_name (str), team_name (str),
+        or a custom_player_list (list).
+        If run without arguments number_alive() returns the total number of players alive"""
+
+        # Finds sets of players that meet each criteria, and counts the number of those that are in all sets
+        # that are alive
+
+        players = set(self.players.values())
+
+        if role_name:
+            players &= set(self.roles_players[role_name])
+
+        if team_name:
+            players &= set(self.teams_players[team_name])
+
+        if custom_player_list:
+            players &= set(custom_player_list)
 
         n = 0
-
-        for player in self.players.values():
-            if player.role.name == role_name:
-                n += player.alive
+        for player in players:
+            n += player.alive
 
         return n
 
@@ -73,7 +99,7 @@ class Player:
         """Updates the player's role, to an instance of the relevant role object"""
 
         # A dictionary of roles that are present, keys are names as strings, values are the role class objects
-        available_roles = {cls.__name__: cls for cls in Role.__subclasses__()}
+        available_roles = {role_class.__name__: role_class for role_class in Role.__subclasses__()}
 
         self.role = available_roles[role_name]()
 
@@ -127,7 +153,17 @@ class Seer(Role):
 
 
 if __name__ == "__main__":
+    """Just for some testing and debugging. Sets up a game with players and assigns roles.
+    Can kill players with player.kill(), can view players' statuses with game_state(),
+    and can test numbers of different groups of players still alive with game.number_alive(...)"""
     game = WerewolfGame([('#1', 'Raph'), ('#2', 'Martin'), ('#3', 'Louis'), ('#4', 'Tom')])
     game.role_list = ['Villager', 'Villager', 'Seer', 'Werewolf']  # because not yet implemented in ruleset
     game.assign_roles()
 
+    def game_state():
+        print("id name     role.name role.team     alive")
+        for player in game.players.values():
+            print('{:2} {:8} {:9} {:13} {!s:5}'.format(player.id, player.name, player.role.name, player.role.team,
+                                                       player.alive))
+
+    game_state()
