@@ -36,7 +36,7 @@ class WerewolfGame:
     def add_player(self, player_id, player_name):
         """Instantiates a new player to the game, and adds them to the game's.players dictionary"""
 
-        self.players[player_id] = Player(player_id, player_name)
+        self.players[player_id] = Player(player_id, player_name, self)
 
     def assign_roles(self):
         """Shuffle the role_list and assign each player a random role.
@@ -49,7 +49,7 @@ class WerewolfGame:
         for player in self.players.values():
             role_name = shuffled_role_list.pop()
 
-            player.assign_role(role_name)
+            player.assign_role(role_name, self)
 
             self.roles_players[role_name].append(player)
             self.teams_players[player.role.team].append(player)
@@ -87,21 +87,24 @@ class Player:
     """For each player in the game, defined by discord ID # and name.
     Each player will have a role attribute"""
 
-    def __init__(self, player_id, player_name):
+    def __init__(self, player_id, player_name, game):
         self.id = player_id
         self.name = player_name
+
+        # The game instance this player is a part of
+        self.game = game
 
         self.alive = True
 
         self.role = None
 
-    def assign_role(self, role_name):
+    def assign_role(self, role_name, game):
         """Updates the player's role, to an instance of the relevant role object"""
 
         # A dictionary of roles that are present, keys are names as strings, values are the role class objects
         available_roles = {role_class.__name__: role_class for role_class in Role.__subclasses__()}
 
-        self.role = available_roles[role_name]()
+        self.role = available_roles[role_name](game)
 
     def kill(self):
         """Kills the player"""
@@ -126,30 +129,49 @@ class Role:
 class Villager(Role):
     """The villager role"""
 
-    def __init__(self):
+    def __init__(self, game):
         self.team = 'villager_team'
         self.name = 'Villager'
-        self.win_condition = None
+
+        # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
+        ##Not sure if this is the best way to do it, but allows the players/roles to use the WerewolfGame instance's
+        ## number_alive method
+        self.game = game
+
         self.night_behaviour = None
+
+    @property
+    def win_condition(self):
+        """Villager instances have an attribute win_condition
+        which, when called, returns a bool depending on whether or not they have won.
+        In this case decided by whether there are any werewolf_team players left alive."""
+
+        return not self.game.number_alive(team_name="werewolf_team")
 
 
 class Werewolf(Role):
     """The werewolf role"""
 
-    def __init__(self):
+    def __init__(self, game):
         self.team = 'werewolf_team'
         self.name = 'Werewolf'
-        self.win_condition = None
+
+        # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
+        self.game = game
+
         self.night_behaviour = None
 
 
 class Seer(Role):
     """The seer role"""
 
-    def __init__(self):
+    def __init__(self, game):
         self.team = 'villager_team'
         self.name = 'Seer'
-        self.win_condition = None
+
+        # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
+        self.game = game
+
         self.night_behaviour = None
 
 
@@ -157,14 +179,14 @@ if __name__ == "__main__":
     """Just for some testing and debugging. Sets up a game with players and assigns roles.
     Can kill players with player.kill(), can view players' statuses with game_state(),
     and can test numbers of different groups of players still alive with game.number_alive(...)"""
-    game = WerewolfGame([('#1', 'Raph'), ('#2', 'Martin'), ('#3', 'Louis'), ('#4', 'Tom')])
-    game.role_list = ['Villager', 'Villager', 'Seer', 'Werewolf']  # because not yet implemented in ruleset
-    game.assign_roles()
+    w_game = WerewolfGame([('#1', 'Raph'), ('#2', 'Martin'), ('#3', 'Louis'), ('#4', 'Tom')])
+    w_game.role_list = ['Villager', 'Villager', 'Seer', 'Werewolf']  # because not yet implemented in ruleset
+    w_game.assign_roles()
 
-    def game_state():
+    def game_state(game):
         print("id name     role.name role.team     alive")
         for player in game.players.values():
             print('{:2} {:8} {:9} {:13} {!s:5}'.format(player.id, player.name, player.role.name, player.role.team,
                                                        player.alive))
 
-    game_state()
+    game_state(w_game)
