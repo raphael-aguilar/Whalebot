@@ -24,41 +24,23 @@ async def on_message(message):
 
         print("command: " + command + "\nargs: " + str(args))
 
-        await command_dict.get(command).execute(message, args)
-
-
-async def help_me(message, args=None):
-    await message.channel.send("""Type: `>> + <command>` to use our commands, full list of commands in `>>commands`""")
-    
-async def commands(message, args=None):
-    reply = "Commands:"
-
-    for i in sorted(command_dict.keys()):
-        line = "\n`" + prefix + i + "`"
-        print(line)
-        reply = reply + line
-
-
-    print(reply)
-    await message.channel.send(reply)
-
+        if command in command_dict.keys():
+            await command_dict.get(command).execute(message, args)
 
 class Command:
 
     instructions = """ """
     description = """ """
 
-    async def execute(self, message, args):
+    @staticmethod
+    async def execute(message, args):
         pass
 
-    @staticmethod
-    async def query(self, message, args):
-        await message.channel.send(instructions)
 
 class Help(Command):
 
     instructions = """Type `""" + prefix + """help <command>` to figure out what other commands do"""
-    descriptor = """ """
+    descriptor = """Gives help with how to use the bot and how commands work"""
 
     @staticmethod
     async def execute(message, args):
@@ -66,31 +48,33 @@ class Help(Command):
             await message.channel.send("""Type: `>> + <command>` to use our commands, full list of commands in `>>commands`""")
         elif len(args) == 1:
             if args[0] in command_dict.keys():
-                await message.channel.send(command_dict)
+                await message.channel.send(command_dict.get(args[0]).instructions)
+
 
 
 class Commands(Command):
 
-    instructions = """`""" + prefix + """ """
-    descriptor = """List of commands the bot can use"""
+    instructions = """Simply use `""" + prefix + """commands` to bring up a list of commands and their descriptions"""
+    descriptor = """Lists the commands the bot can use"""
 
     @staticmethod
     async def execute(message, args):
         reply = "Commands:"
 
-        for i in sorted(command_dict.keys()):
-            line = "\n`" + prefix + i + "`"
+        for name, instance in sorted(command_dict.items()):
+            line = "\n`" + prefix + name + "`" + " - " + instance.descriptor
             print(line)
             reply = reply + line
 
         print(reply)
         await message.channel.send(reply)
-        
 
 
+# The command able to be used
 command_dict = {"help": Help,
                 "commands": Commands
                }
 
-
-client.run(token)
+if __name__ == "__main__":
+    print("Whalebot is now live!\n")
+    client.run(token)
