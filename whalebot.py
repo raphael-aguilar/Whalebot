@@ -70,12 +70,23 @@ class Commands(Command):
         await message.channel.send(reply)
 
 
+class Game(Command):
+    instructions = """Use `""" + prefix + """game <game>` to initiate the given game"""
+    descriptor = """Used to play games within the discord server"""
+
+    @staticmethod
+    async def execute(message, args):
+        pass
+
+
 # The command able to be used
 command_dict = {"help": Help,
-                "commands": Commands
+                "commands": Commands,
+                "game": Game
                }
 
 
+# Used to see what games are active
 running_games = []
 
 
