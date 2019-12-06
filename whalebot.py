@@ -5,7 +5,7 @@ import discord
 prefix = ">>"
 
 def read_token():
-    with open("./app/token.txt", "r") as f:
+    with open("token.txt", "r") as f:
         lines = f.readlines()
         return lines[0].strip()
 
