@@ -24,7 +24,7 @@ async def on_message(message):
 
         print("command: " + command + "\nargs: " + str(args))
 
-        await command_dict.get(command, help_me)(message, args)
+        await command_dict.get(command).execute(message, args)
 
 
 async def help_me(message, args=None):
@@ -42,8 +42,54 @@ async def commands(message, args=None):
     print(reply)
     await message.channel.send(reply)
 
-command_dict = {"help": help_me,
-                "commands": commands
+
+class Command:
+
+    instructions = """ """
+    description = """ """
+
+    async def execute(self, message, args):
+        pass
+
+    @staticmethod
+    async def query(self, message, args):
+        await message.channel.send(instructions)
+
+class Help(Command):
+
+    instructions = """Type `""" + prefix + """help <command>` to figure out what other commands do"""
+    descriptor = """ """
+
+    @staticmethod
+    async def execute(message, args):
+        if len(args) == 0:
+            await message.channel.send("""Type: `>> + <command>` to use our commands, full list of commands in `>>commands`""")
+        elif len(args) == 1:
+            if args[0] in command_dict.keys():
+                await message.channel.send(command_dict)
+
+
+class Commands(Command):
+
+    instructions = """`""" + prefix + """ """
+    descriptor = """List of commands the bot can use"""
+
+    @staticmethod
+    async def execute(message, args):
+        reply = "Commands:"
+
+        for i in sorted(command_dict.keys()):
+            line = "\n`" + prefix + i + "`"
+            print(line)
+            reply = reply + line
+
+        print(reply)
+        await message.channel.send(reply)
+        
+
+
+command_dict = {"help": Help,
+                "commands": Commands
                }
 
 
