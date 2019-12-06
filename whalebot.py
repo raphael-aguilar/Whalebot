@@ -75,6 +75,10 @@ command_dict = {"help": Help,
                 "commands": Commands
                }
 
+
+running_games = []
+
+
 if __name__ == "__main__":
     print("Whalebot is now live!\n")
     client.run(token)
