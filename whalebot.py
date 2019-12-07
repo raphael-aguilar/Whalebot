@@ -1,8 +1,8 @@
 import discord
 
+from command import prefix, Command
+from games import Game
 
-# The prefix used to call the bot
-prefix = ">>"
 
 def read_token():
     with open("token.txt", "r") as f:
@@ -12,6 +12,11 @@ def read_token():
 token = read_token()
 
 client = discord.Client()
+
+@bot.event
+async def set_status():
+    activity = discord.Activity(name='hello there', type=discord.Activity.watching)
+    await client.change_presence(activity=activity)
 
 @client.event
 async def on_message(message):
@@ -27,16 +32,6 @@ async def on_message(message):
         if command in command_dict.keys():
             await command_dict.get(command).execute(message, args)
 
-class Command:
-
-    instructions = """ """
-    description = """ """
-
-    @staticmethod
-    async def execute(message, args):
-        pass
-
-
 class Help(Command):
 
     instructions = """Type `""" + prefix + """help <command>` to figure out what other commands do"""
@@ -49,8 +44,6 @@ class Help(Command):
         elif len(args) == 1:
             if args[0] in command_dict.keys():
                 await message.channel.send(command_dict.get(args[0]).instructions)
-
-
 
 class Commands(Command):
 
@@ -69,16 +62,6 @@ class Commands(Command):
         print(reply)
         await message.channel.send(reply)
 
-
-class Game(Command):
-    instructions = """Use `""" + prefix + """game <game>` to initiate the given game"""
-    descriptor = """Used to play games within the discord server"""
-
-    @staticmethod
-    async def execute(message, args):
-        pass
-
-
 # The command able to be used
 command_dict = {"help": Help,
                 "commands": Commands,
@@ -86,10 +69,9 @@ command_dict = {"help": Help,
                }
 
 
-# Used to see what games are active
-running_games = []
-
 
 if __name__ == "__main__":
-    print("Whalebot is now live!\n")
+    
     client.run(token)
+    print("Whalebot is now live!\n")
+    set_status()
