@@ -2,6 +2,8 @@ import random
 import discord
 from collections import defaultdict
 
+from enum import Enum, auto
+
 
 class WerewolfGame:
     """The class for the game engine.
@@ -130,7 +132,7 @@ class Villager(Role):
     """The villager role"""
 
     def __init__(self, game):
-        self.team = 'villager_team'
+        self.team = TeamAlign.Villager
         self.name = 'Villager'
 
         # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
@@ -153,7 +155,7 @@ class Werewolf(Role):
     """The werewolf role"""
 
     def __init__(self, game):
-        self.team = 'werewolf_team'
+        self.team = TeamAlign.Werewolf
         self.name = 'Werewolf'
 
         # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
@@ -166,13 +168,21 @@ class Seer(Role):
     """The seer role"""
 
     def __init__(self, game):
-        self.team = 'villager_team'
+        self.team = TeamAlign.Villager
         self.name = 'Seer'
 
         # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
         self.game = game
 
         self.night_behaviour = None
+
+class TeamAlign(Enum):
+    Werewolf = auto()
+    Villager = auto()
+
+class TeamAppearance(Enum):
+    Werewolf = auto()
+    Villager = auto()
 
 
 if __name__ == "__main__":
