@@ -19,14 +19,14 @@ class WerewolfGame:
 
     # SETUP
 
-    def __init__(self, player_list, ruleset=None):
+    def __init__(self, ruleset=None):
         """Takes a list of tuples for players, the tuples will be (player_id, player_name)"""
 
         # a dictionary of player objects, with their player_id as the keys
-        self.players = {}
+        # self.players = {}
+        self.players_alive = []
+        self.players_dead = []
 
-        for player_id, player_name in player_list:
-            self.add_player(player_id, player_name)
 
         # probably a dict of {'role':{modifier1:value, modifier2:value},...}, with each role in play included just once
         # most will just be empty/default, these can be the arguments for when the roles are initialised
@@ -42,10 +42,19 @@ class WerewolfGame:
         self.roles_players = defaultdict(list)
         self.teams_players = defaultdict(list)
 
-    def add_player(self, player_id, player_name):
+    def add_player(self, user):
         """Instantiates a new player to the game, and adds them to the game's.players dictionary"""
 
-        self.players[player_id] = Player(player_id, player_name, self)
+        self.players_alive.append(Player(user, self))
+
+    def remove_player(self, player_id):
+        pass
+
+    def add_role(self, role):
+        pass
+
+    def remove_role(self, role):
+        pass
 
     def assign_roles(self):
         """Shuffle the role_list and assign each player a random role.
@@ -64,6 +73,15 @@ class WerewolfGame:
             self.teams_players[player.role.team].append(player)
 
     # GAMEPLAY
+
+    def find_player(self, user_id):
+        
+        for player in self.players_alive:
+            if player.user.id == user_id:
+                return player
+        
+        print("Player not found.")
+        return None
 
     def number_alive(self, role_name=None, team_name=None, custom_player_list=None):
         """Returns an int, the number of remaining players of those specified that are still alive.
@@ -103,23 +121,29 @@ class WerewolfGame:
         else:
             return True
 
+    def kill(self, player):
+
+        self.players_dead.append(player)
+
+        self.players_alive.pop(player)
+
+        player.kill()
+
         
-
-
 
 class Player:
     """For each player in the game, defined by discord ID # and name.
     Each player will have a role attribute"""
 
-    def __init__(self, player_id, player_name, game):
-        self.id = player_id
-        self.name = player_name
+    def __init__(self, user, game):
+        
+        # Discord User
+        self.user = user
+        # user.id, user.name
 
         # The game instance this player is a part of
         self.game = game
-
         self.alive = True
-
         self.role = None
 
     def assign_role(self, role_name, game):
@@ -132,6 +156,8 @@ class Player:
 
     def kill(self):
         """Kills the player"""
+
+        self.role.kill()
 
         self.alive = False
 
@@ -172,6 +198,9 @@ class Role:
 
     # If player has no night action function will do nothing
     def night_action(self):
+        pass
+
+    def kill():
         pass
 
 
