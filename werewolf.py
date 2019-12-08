@@ -126,6 +126,7 @@ class Role:
     # Value of the player for game balancing
     player_worth = None
 
+    # Presedence player will be called at the nigth phase
     night_rank = 0
     
     """The role for each player, with its own rules.
@@ -175,27 +176,24 @@ class Villager(Role):
 class Werewolf(Role):
     """The werewolf role"""
 
-    def __init__(self, game):
-        self.team = TeamAlign.Werewolf
-        self.name = 'Werewolf'
+    name = "Werewolf"
+    team = TeamAlign.Villager
+    team_appearance = TeamAppearance.Villager
 
-        # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
-        self.game = game
+    def night_action(self):
+        
+        # Killing player
 
-        self.night_behaviour = None
+        pass
 
 
 class Seer(Role):
     """The seer role"""
 
-    def __init__(self, game):
-        self.team = TeamAlign.Villager
-        self.name = 'Seer'
+    name = "Seer"
+    team = TeamAlign.Villager
+    team_appearance = TeamAppearance.Villager
 
-        # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
-        self.game = game
-
-        self.night_behaviour = None
 
     def night_action(self):
         return super().night_action()
