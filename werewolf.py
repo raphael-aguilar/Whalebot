@@ -91,6 +91,21 @@ class WerewolfGame:
 
         return n
 
+    def game_over(self):
+
+        teams_alive = {}
+        for player in self.players:
+            if player.alive:
+                teams_alive.append(player.role.TeamAlign)
+
+        if len(teams_alive) > 1:
+            return False
+        else:
+            return True
+
+        
+
+
 
 class Player:
     """For each player in the game, defined by discord ID # and name.
@@ -136,13 +151,12 @@ class Role:
     # Presedence player will be called at the nigth phase
     night_rank = 0
 
-    def __init__(self, game, member):
+    def __init__(self, game):
 
         # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
         ##Not sure if this is the best way to do it, but allows the players/roles to use the WerewolfGame instance's
         ## number_alive method
         self.game = game
-        self.member = member
     
     """The role for each player, with its own rules.
     Roles will have attributes & methods: team, team_appearance (eg. lycan), win_condition,
@@ -171,22 +185,12 @@ class Villager(Role):
     player_worth = 1
 
 
-
-    @property
-    def win_condition(self):
-        """Villager instances have an attribute win_condition
-        which, when called, returns a bool depending on whether or not they have won.
-        In this case decided by whether there are any werewolf_team players left alive."""
-
-        return not self.game.number_alive(team_name="werewolf_team")
-
-
 class Werewolf(Role):
     """The werewolf role"""
 
     name = "Werewolf"
-    team = TeamAlign.Villager
-    team_appearance = TeamAppearance.Villager
+    team = TeamAlign.Werewolf
+    team_appearance = TeamAppearance.Werewolf
 
     def night_action(self):
         
