@@ -117,6 +117,16 @@ class Player:
 
 
 class Role:
+
+    # Attributes that will be the same for each of that role
+    name = None
+    team = None
+    team_appearance = None
+
+    # Value of the player for game balancing
+    player_worth = None
+
+    night_rank = 0
     
     """The role for each player, with its own rules.
     Roles will have attributes & methods: team, team_appearance (eg. lycan), win_condition,
@@ -125,22 +135,33 @@ class Role:
     Some roles may have attributes modifiable for different rulesets,
     eg. bodyguard, can be able to protect self/not, can protect same person twice/not"""
 
-    pass
+
+    # Any special cases that happen on the first night
+    def first_night(self):
+        pass
+
+    # If player has no night action function will do nothing
+    def night_action(self):
+        pass
 
 
 class Villager(Role):
     """The villager role"""
 
-    def __init__(self, game):
-        self.team = TeamAlign.Villager
-        self.name = 'Villager'
+    name = "Villager"
+    team = TeamAlign.Villager
+    team_appearance = TeamAppearance.Villager
+
+    player_worth = 1
+
+    def __init__(self, game, member):
 
         # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
         ##Not sure if this is the best way to do it, but allows the players/roles to use the WerewolfGame instance's
         ## number_alive method
         self.game = game
+        self.member = member
 
-        self.night_behaviour = None
 
     @property
     def win_condition(self):
@@ -175,6 +196,10 @@ class Seer(Role):
         self.game = game
 
         self.night_behaviour = None
+
+    def night_action(self):
+        return super().night_action()
+
 
 class TeamAlign(Enum):
     Werewolf = auto()
