@@ -200,7 +200,7 @@ class Role:
     def night_action(self):
         pass
 
-    def kill():
+    def kill(self):
         pass
 
 
