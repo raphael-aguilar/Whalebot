@@ -16,68 +16,76 @@ class TeamAppearance(Enum):
 
 
 class WerewolfGame:
-    """The class for the game engine.
-    Will need to know the players (by discord ID # and name)
-    And the ruleset - the roles in play, how many of each, and any modifiers"""
+    """The class for the game engine."""
 
     # SETUP
 
     def __init__(self):
-        """Takes a list of tuples for players, the tuples will be (player_id, player_name)"""
 
-        # a dictionary of player objects, with their player_id as the keys
+        # lists of player objects, either alive or dead
         # self.players = {}
         self.players_alive = []
         self.players_dead = []
 
-        # probably a dict of {'role':{modifier1:value, modifier2:value},...}, with each role in play included just once
-        # most will just be empty/default, these can be the arguments for when the roles are initialised
-        # created from ruleset
-        # self.role_modifiers = {}
-
         # list of roles in play, with each role occurring as many times as players with that role
-        # created from ruleset
         self.role_list = []
 
-        # a dictionary of players grouped by their roles, with the role name strings as keys,
-        # and a list of player objects as values
-        self.roles_players = defaultdict(list)
-        self.teams_players = defaultdict(list)
+        # # a dictionary of players grouped by their roles, with the role name strings as keys,
+        # # and a list of player objects as values
+        # self.roles_players = defaultdict(list)
+        # self.teams_players = defaultdict(list)
+
+        # Whether the game is still in setup phase, which allows for adding/removing players, etc.
+        self.in_setup = True
 
     def add_player(self, user):
-        """Instantiates a new player to the game, and adds them to the game's.players dictionary"""
+        """Instantiates a new player to the game, and adds them to the game's.players_alive list"""
 
-        self.players_alive.append(Player(user, self))
+        if self.in_setup:
+            self.players_alive.append(Player(user, self))
 
     def remove_player(self, player_id):
-        pass
+        """Removes a player from the game."""
+
+        if self.in_setup:
+            pass
 
     def add_role(self, role):
-        pass
+        """Adds a role to the role_list"""
+
+        if self.in_setup:
+            pass
 
     def remove_role(self, role):
-        pass
+        """Removes a role from the role_list"""
+
+        if self.in_setup:
+            pass
 
     def assign_roles(self):
         """Shuffle the role_list and assign each player a random role.
-        Also adds each player to the game's.roles_players dict and games's.teams_players dict.
-        Only call once all players have been added"""
+        # Also adds each player to the game's.roles_players dict and games's.teams_players dict.
+        Only call once all players have been added. Ends setup phase."""
 
-        shuffled_role_list = self.role_list
-        random.shuffle(shuffled_role_list)
+        if self.in_setup:
+            shuffled_role_list = self.role_list
+            random.shuffle(shuffled_role_list)
 
-        for player in self.players_alive:
-            role_name = shuffled_role_list.pop()
+            for player in self.players_alive:
+                role_name = shuffled_role_list.pop()
 
-            player.assign_role(role_name, self)
+                player.assign_role(role_name, self)
 
-            self.roles_players[role_name].append(player)
-            self.teams_players[player.role.team].append(player)
+                self.roles_players[role_name].append(player)
+                self.teams_players[player.role.team].append(player)
+
+        # Ends the setup phase
+        self.in_setup = False
 
     # GAMEPLAY
 
     def find_player(self, user_id):
-        
+        """Takes a user_id, returns the relevant player object from the players_alive list"""
         for player in self.players_alive:
             if player.user.id == user_id:
                 return player
