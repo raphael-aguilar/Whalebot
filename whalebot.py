@@ -13,7 +13,7 @@ token = read_token()
 
 client = discord.Client()
 
-@bot.event
+
 async def set_status():
     activity = discord.Activity(name='hello there', type=discord.Activity.watching)
     await client.change_presence(activity=activity)
@@ -73,5 +73,6 @@ command_dict = {"help": Help,
 if __name__ == "__main__":
     
     client.run(token)
-    print("Whalebot is now live!\n")
     set_status()
+    print("Whalebot is now live!\n")
+    

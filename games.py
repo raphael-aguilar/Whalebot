@@ -8,6 +8,7 @@ class Game():
 
     @staticmethod
     async def execute(message, args):
+        await message.channel.send("This functionality is still being made.")
         pass
 
 
