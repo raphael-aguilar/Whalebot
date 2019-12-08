@@ -4,6 +4,13 @@ from collections import defaultdict
 
 from enum import Enum, auto
 
+class TeamAlign(Enum):
+    Werewolf = auto()
+    Villager = auto()
+
+class TeamAppearance(Enum):
+    Werewolf = auto()
+    Villager = auto()
 
 class WerewolfGame:
     """The class for the game engine.
@@ -128,6 +135,14 @@ class Role:
 
     # Presedence player will be called at the nigth phase
     night_rank = 0
+
+    def __init__(self, game, member):
+
+        # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
+        ##Not sure if this is the best way to do it, but allows the players/roles to use the WerewolfGame instance's
+        ## number_alive method
+        self.game = game
+        self.member = member
     
     """The role for each player, with its own rules.
     Roles will have attributes & methods: team, team_appearance (eg. lycan), win_condition,
@@ -155,13 +170,6 @@ class Villager(Role):
 
     player_worth = 1
 
-    def __init__(self, game, member):
-
-        # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
-        ##Not sure if this is the best way to do it, but allows the players/roles to use the WerewolfGame instance's
-        ## number_alive method
-        self.game = game
-        self.member = member
 
 
     @property
@@ -198,14 +206,6 @@ class Seer(Role):
     def night_action(self):
         return super().night_action()
 
-
-class TeamAlign(Enum):
-    Werewolf = auto()
-    Villager = auto()
-
-class TeamAppearance(Enum):
-    Werewolf = auto()
-    Villager = auto()
 
 
 if __name__ == "__main__":
