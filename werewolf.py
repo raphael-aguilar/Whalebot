@@ -1,6 +1,6 @@
-import random
+from random import shuffle
 import discord
-from collections import defaultdict
+# from collections import defaultdict
 
 from enum import Enum, auto
 
@@ -69,23 +69,24 @@ class WerewolfGame:
 
         if self.in_setup:
             shuffled_role_list = self.role_list
-            random.shuffle(shuffled_role_list)
+            shuffle(shuffled_role_list)
 
             for player in self.players_alive:
                 role_name = shuffled_role_list.pop()
 
                 player.assign_role(role_name, self)
 
-                self.roles_players[role_name].append(player)
-                self.teams_players[player.role.team].append(player)
+                # self.roles_players[role_name].append(player)
+                # self.teams_players[player.role.team].append(player)
 
-        # Ends the setup phase
-        self.in_setup = False
+            # Ends the setup phase
+            self.in_setup = False
 
     # GAMEPLAY
 
     def find_player(self, user_id):
         """Takes a user_id, returns the relevant player object from the players_alive list"""
+
         for player in self.players_alive:
             if player.user.id == user_id:
                 return player
@@ -120,6 +121,7 @@ class WerewolfGame:
     #     return n
 
     def game_over(self):
+        """Checks whether any team has won"""
 
         teams_alive = set()
         for player in self.players_alive:
@@ -131,6 +133,7 @@ class WerewolfGame:
             return True
 
     def kill(self, player):
+        """Kills a player, moving them from the alive list to the dead list"""
 
         self.players_dead.append(player)
 
@@ -140,7 +143,7 @@ class WerewolfGame:
 
 
 class Player:
-    """For each player in the game, defined by discord ID # and name.
+    """For each player in the game, defined by discord user object.
     Each player will have a role attribute"""
 
     def __init__(self, user, game):
@@ -151,6 +154,7 @@ class Player:
 
         # The game instance this player is a part of
         self.game = game
+
         self.alive = True
         self.role = None
 
@@ -163,7 +167,8 @@ class Player:
         self.role = available_roles[role_name](game)
 
     def kill(self):
-        """Kills the player"""
+        """Kills the player.
+        Called by the game's kill function"""
 
         self.role.kill()
 
@@ -190,11 +195,7 @@ class Role:
         # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
         self.game = game
     
-    """The role for each player, with its own rules.
-    Roles will have attributes & methods: team, team_appearance (eg. lycan), win_condition,
-    first_night_behaviour, night_behaviour, night_order_precedence
-
-    Some roles may have attributes modifiable for different rulesets,
+    """Some roles may have attributes modifiable for different rulesets,
     eg. bodyguard, can be able to protect self/not, can protect same person twice/not"""
 
     # Any special cases that happen on the first night
