@@ -6,11 +6,13 @@ from enum import Enum, auto
 
 
 class TeamAlign(Enum):
+    """Player Role team attributes"""
     Werewolf = auto()
     Villager = auto()
 
 
 class TeamAppearance(Enum):
+    """Player Role team appearance, this may be different to TeamAlign for roles such as lycan"""
     Werewolf = auto()
     Villager = auto()
 
@@ -43,24 +45,29 @@ class WerewolfGame:
 
         if self.in_setup:
             self.players_alive.append(Player(user, self))
+            print(user.name, user.id, "was added to the game")
 
     def remove_player(self, player_id):
         """Removes a player from the game."""
 
         if self.in_setup:
-            pass
+            player = self.find_players(player_id)
+            self.players_alive.pop(player)
+            print(player.name, player.id, "was removed from the game")
 
-    def add_role(self, role):
-        """Adds a role to the role_list"""
-
-        if self.in_setup:
-            pass
-
-    def remove_role(self, role):
-        """Removes a role from the role_list"""
+    def add_role(self, role_name):
+        """Adds a role_name to the role_list"""
 
         if self.in_setup:
-            pass
+            self.role_list.append(role_name)
+            print(self.role_list)
+
+    def remove_role(self, role_name):
+        """Removes a role_name from the role_list"""
+
+        if self.in_setup:
+            self.role_list.pop(role_name)
+            print(self.role_list)
 
     def assign_roles(self):
         """Shuffle the role_list and assign each player a random role.
@@ -84,41 +91,29 @@ class WerewolfGame:
 
     # GAMEPLAY
 
-    def find_player(self, user_id):
-        """Takes a user_id, returns the relevant player object from the players_alive list"""
+    def find_players(self, user_id=None, role=None, team=None):
+        """Takes a user_id int, returns the relevant player object from the players_alive list.
+        Alternatively takes a role and/or TeamAlign and returns a list of all the player objects which
+        meet the criteria.
+        In the case no identifiers are specified, or no players meet the criteria, returns an empty list."""
+
+        players_found = []
 
         for player in self.players_alive:
-            if player.user.id == user_id:
-                return player
-        
-        print("Player not found.")
-        return None
+            if user_id:
+                # For finding a single alive player
+                if player.user.id == user_id:
+                    return player
 
-    # def number_alive(self, role_name=None, team_name=None, custom_player_list=None):
-    #     """Returns an int, the number of remaining players of those specified that are still alive.
-    #     The players under consideration can be chosen by role_name (str), team_name (str),
-    #     or a custom_player_list (list).
-    #     If run without arguments number_alive() returns the total number of players alive"""
-    #
-    #     # Finds sets of players that meet each criteria, and counts the number of those that are in all sets
-    #     # that are alive
-    #
-    #     players = set(self.players.values())
-    #
-    #     if role_name:
-    #         players &= set(self.roles_players[role_name])
-    #
-    #     if team_name:
-    #         players &= set(self.teams_players[team_name])
-    #
-    #     if custom_player_list:
-    #         players &= set(custom_player_list)
-    #
-    #     n = 0
-    #     for player in players:
-    #         n += player.alive
-    #
-    #     return n
+            # For finding a list of players alive
+            if role:
+                if player.role == role:
+                    players_found.append(player)
+            if team:
+                if player.team == team:
+                    players_found.append(player)
+
+        return players_found
 
     def game_over(self):
         """Checks whether any team has won"""
@@ -130,7 +125,7 @@ class WerewolfGame:
         if len(teams_alive) > 1:
             return False
         else:
-            return True
+            return True  # Could make it return the team that has won
 
     def kill(self, player):
         """Kills a player, moving them from the alive list to the dead list"""
@@ -150,11 +145,12 @@ class Player:
         
         # Discord User
         self.user = user
-        # user.id, user.name
+        # user.id, user.name, user.dm_channel
 
         # The game instance this player is a part of
         self.game = game
 
+        # The player's game attributes
         self.alive = True
         self.role = None
 
