@@ -22,7 +22,7 @@ class WerewolfGame:
 
     # SETUP
 
-    def __init__(self):
+    def __init__(self, head_member):
         """Takes a list of tuples for players, the tuples will be (player_id, player_name)"""
 
         # a dictionary of player objects, with their player_id as the keys

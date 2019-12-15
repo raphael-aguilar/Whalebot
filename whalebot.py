@@ -1,7 +1,7 @@
 import discord
 
 from command import prefix, Command
-from games import Game
+from games import Game, running_game
 
 
 def read_token():
