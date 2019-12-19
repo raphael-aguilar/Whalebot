@@ -13,10 +13,11 @@ token = read_token()
 
 client = discord.Client()
 
+# Anything that is done at on bot startup
 @client.event
 async def on_ready():
     
-    await client.change_presence(activity=discord.Game(name='>>help for info'))
+    await client.change_presence(activity=discord.Game(name=prefix + 'help for info'))
     print("Whalebot is now live!\n")
 
 @client.event
