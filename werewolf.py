@@ -1,6 +1,6 @@
-import random
+from random import shuffle
 import discord
-from collections import defaultdict
+# from collections import defaultdict
 
 from enum import Enum, auto
 
@@ -22,9 +22,7 @@ class GameSetup(Enum):
 
 
 class WerewolfGame:
-    """The class for the game engine.
-    Will need to know the players (by discord ID # and name)
-    And the ruleset - the roles in play, how many of each, and any modifiers"""
+    """The class for the game engine."""
 
     # SETUP
 
@@ -42,19 +40,16 @@ class WerewolfGame:
         self.players_alive = []
         self.players_dead = []
 
-        # probably a dict of {'role':{modifier1:value, modifier2:value},...}, with each role in play included just once
-        # most will just be empty/default, these can be the arguments for when the roles are initialised
-        # created from ruleset
-        # self.role_modifiers = {}
-
         # list of roles in play, with each role occurring as many times as players with that role
-        # created from ruleset
         self.role_list = []
 
-        # a dictionary of players grouped by their roles, with the role name strings as keys,
-        # and a list of player objects as values
-        self.roles_players = defaultdict(list)
-        self.teams_players = defaultdict(list)
+        # # a dictionary of players grouped by their roles, with the role name strings as keys,
+        # # and a list of player objects as values
+        # self.roles_players = defaultdict(list)
+        # self.teams_players = defaultdict(list)
+
+        # Whether the game is still in setup phase, which allows for adding/removing players, etc.
+        self.in_setup = True
 
     async def setup_game(self):
         
@@ -65,39 +60,54 @@ class WerewolfGame:
 
 
     def add_player(self, user):
-        """Instantiates a new player to the game, and adds them to the game's.players dictionary"""
+        """Instantiates a new player to the game, and adds them to the game's.players_alive list"""
 
-        self.players_alive.append(Player(user, self))
+        if self.in_setup:
+            self.players_alive.append(Player(user, self))
 
     def remove_player(self, player_id):
-        pass
+        """Removes a player from the game."""
+
+        if self.in_setup:
+            pass
 
     def add_role(self, role):
-        pass
+        """Adds a role to the role_list"""
+
+        if self.in_setup:
+            pass
 
     def remove_role(self, role):
-        pass
+        """Removes a role from the role_list"""
+
+        if self.in_setup:
+            pass
 
     def assign_roles(self):
         """Shuffle the role_list and assign each player a random role.
-        Also adds each player to the game's.roles_players dict and games's.teams_players dict.
-        Only call once all players have been added"""
+        # Also adds each player to the game's.roles_players dict and games's.teams_players dict.
+        Only call once all players have been added. Ends setup phase."""
 
-        shuffled_role_list = self.role_list
-        random.shuffle(shuffled_role_list)
+        if self.in_setup:
+            shuffled_role_list = self.role_list
+            shuffle(shuffled_role_list)
 
-        for player in self.players_alive:
-            role_name = shuffled_role_list.pop()
+            for player in self.players_alive:
+                role_name = shuffled_role_list.pop()
 
-            player.assign_role(role_name, self)
+                player.assign_role(role_name, self)
 
-            self.roles_players[role_name].append(player)
-            self.teams_players[player.role.team].append(player)
+                # self.roles_players[role_name].append(player)
+                # self.teams_players[player.role.team].append(player)
+
+            # Ends the setup phase
+            self.in_setup = False
 
     # GAMEPLAY
 
     def find_player(self, user_id):
-        
+        """Takes a user_id, returns the relevant player object from the players_alive list"""
+
         for player in self.players_alive:
             if player.user.id == user_id:
                 return player
@@ -132,6 +142,7 @@ class WerewolfGame:
     #     return n
 
     def game_over(self):
+        """Checks whether any team has won"""
 
         teams_alive = set()
         for player in self.players_alive:
@@ -143,6 +154,7 @@ class WerewolfGame:
             return True
 
     def kill(self, player):
+        """Kills a player, moving them from the alive list to the dead list"""
 
         self.players_dead.append(player)
 
@@ -152,7 +164,7 @@ class WerewolfGame:
 
 
 class Player:
-    """For each player in the game, defined by discord ID # and name.
+    """For each player in the game, defined by discord user object.
     Each player will have a role attribute"""
 
     def __init__(self, user, game):
@@ -163,6 +175,7 @@ class Player:
 
         # The game instance this player is a part of
         self.game = game
+
         self.alive = True
         self.role = None
 
@@ -175,7 +188,8 @@ class Player:
         self.role = available_roles[role_name](game)
 
     def kill(self):
-        """Kills the player"""
+        """Kills the player.
+        Called by the game's kill function"""
 
         self.role.kill()
 
@@ -202,11 +216,7 @@ class Role:
         # The game instance this role is a part of, allows for calling WerewolfGame methods, eg. for win_condition
         self.game = game
     
-    """The role for each player, with its own rules.
-    Roles will have attributes & methods: team, team_appearance (eg. lycan), win_condition,
-    first_night_behaviour, night_behaviour, night_order_precedence
-
-    Some roles may have attributes modifiable for different rulesets,
+    """Some roles may have attributes modifiable for different rulesets,
     eg. bodyguard, can be able to protect self/not, can protect same person twice/not"""
 
     # Any special cases that happen on the first night
