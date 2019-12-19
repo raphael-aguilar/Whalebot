@@ -72,7 +72,6 @@ command_dict = {"help": Help,
 
 if __name__ == "__main__":
     
-    client.run(token)
-    set_status()
     print("Whalebot is now live!\n")
+    client.run(token)
     

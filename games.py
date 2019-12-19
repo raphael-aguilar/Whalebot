@@ -14,8 +14,15 @@ class Game():
         if len(args) != 1:
             return
 
-        if args[0] in games_dict:
-            running_game = games_dict.get(args[0])(message.member)
+
+
+        if args[0] in games_dict or True:
+            
+            member = message.author
+            running_game = games_dict.get(args[0])(member)
+
+            await running_game.setup_game()
+
 
         await message.channel.send("This functionality is still being made.")
         pass
