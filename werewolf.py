@@ -1,6 +1,5 @@
 from random import shuffle
 import discord
-# from collections import defaultdict
 
 from enum import Enum, auto
 
@@ -25,35 +24,32 @@ class WerewolfGame:
     def __init__(self):
 
         # lists of player objects, either alive or dead
-        # self.players = {}
         self.players_alive = []
         self.players_dead = []
 
         # list of roles in play, with each role occurring as many times as players with that role
+        # List of string role names
         self.role_list = []
-
-        # # a dictionary of players grouped by their roles, with the role name strings as keys,
-        # # and a list of player objects as values
-        # self.roles_players = defaultdict(list)
-        # self.teams_players = defaultdict(list)
 
         # Whether the game is still in setup phase, which allows for adding/removing players, etc.
         self.in_setup = True
 
     def add_player(self, user):
-        """Instantiates a new player to the game, and adds them to the game's.players_alive list"""
+        """Instantiates a new player to the game, and adds them to the game's.players_alive list.
+        Takes a discord user object."""
 
         if self.in_setup:
             self.players_alive.append(Player(user, self))
             print(user.name, user.id, "was added to the game")
 
     def remove_player(self, player_id):
-        """Removes a player from the game."""
+        """Removes a player from the game.
+         Takes a player_id int."""
 
         if self.in_setup:
             player = self.find_players(player_id)
-            self.players_alive.pop(player)
-            print(player.name, player.id, "was removed from the game")
+            self.players_alive.remove(player)
+            print(player.user.name, player.user.id, "was removed from the game")
 
     def add_role(self, role_name):
         """Adds a role_name to the role_list"""
@@ -66,7 +62,7 @@ class WerewolfGame:
         """Removes a role_name from the role_list"""
 
         if self.in_setup:
-            self.role_list.pop(role_name)
+            self.role_list.remove(role_name)
             print(self.role_list)
 
     def assign_roles(self):
@@ -83,9 +79,6 @@ class WerewolfGame:
 
                 player.assign_role(role_name, self)
 
-                # self.roles_players[role_name].append(player)
-                # self.teams_players[player.role.team].append(player)
-
             # Ends the setup phase
             self.in_setup = False
 
@@ -93,9 +86,9 @@ class WerewolfGame:
 
     def find_players(self, user_id=None, role=None, team=None):
         """Takes a user_id int, returns the relevant player object from the players_alive list.
-        Alternatively takes a role and/or TeamAlign and returns a list of all the player objects which
-        meet the criteria.
-        In the case no identifiers are specified, or no players meet the criteria, returns an empty list."""
+        Alternatively takes a role (string role.name) and/or TeamAlign (eg. TeamAlign.Villager)
+        and returns a list of all the player objects which meet the criteria.
+        In the case no identifiers are specified, or no live players meet the criteria, returns an empty list."""
 
         players_found = []
 
@@ -107,10 +100,10 @@ class WerewolfGame:
 
             # For finding a list of players alive
             if role:
-                if player.role == role:
+                if player.role.name == role:
                     players_found.append(player)
             if team:
-                if player.team == team:
+                if player.role.team == team:
                     players_found.append(player)
 
         return players_found
@@ -120,7 +113,7 @@ class WerewolfGame:
 
         teams_alive = set()
         for player in self.players_alive:
-            teams_alive.add(player.role.TeamAlign)
+            teams_alive.add(player.role.team)
 
         if len(teams_alive) > 1:
             return False
@@ -132,7 +125,7 @@ class WerewolfGame:
 
         self.players_dead.append(player)
 
-        self.players_alive.pop(player)
+        self.players_alive.remove(player)
 
         player.kill()
 
@@ -151,6 +144,7 @@ class Player:
         self.game = game
 
         # The player's game attributes
+
         self.alive = True
         self.role = None
 
@@ -158,7 +152,7 @@ class Player:
         """Updates the player's role, to an instance of the relevant role object"""
 
         # A dictionary of roles that are present, keys are names as strings, values are the role class objects
-        available_roles = {role_class.__name__: role_class for role_class in Role.__subclasses__()}
+        available_roles = {role_class.name: role_class for role_class in Role.__subclasses__()}
 
         self.role = available_roles[role_name](game)
 
@@ -166,11 +160,12 @@ class Player:
         """Kills the player.
         Called by the game's kill function"""
 
+        # executes any events that occur when that role is killed
         self.role.kill()
 
         self.alive = False
 
-        print(self.user.name, "has been killed, they were on the", self.role.team)
+        print(self.user.name, "has been killed, they were on ", self.role.team)
 
 
 class Role:
@@ -241,18 +236,43 @@ class Seer(Role):
         return super().night_action()
 
 
-# if __name__ == "__main__":
-#     """Just for some testing and debugging. Sets up a game with players and assigns roles.
-#     Can kill players with player.kill(), can view players' statuses with game_state(),
-#     and can test numbers of different groups of players still alive with game.number_alive(...)"""
-#     w_game = WerewolfGame([('#1', 'Raph'), ('#2', 'Martin'), ('#3', 'Louis'), ('#4', 'Tom')])
-#     w_game.role_list = ['Villager', 'Villager', 'Seer', 'Werewolf']  # because not yet implemented in ruleset
-#     w_game.assign_roles()
-#
-#     def game_state(game):
-#         print("id name     role.name role.team     alive")
-#         for player in game.players.values():
-#             print('{:2} {:8} {:9} {:13} {!s:5}'.format(player.id, player.name, player.role.name, player.role.team,
-#                                                        player.alive))
-#
-#     game_state(w_game)
+if __name__ == "__main__":
+    """Just for some testing and debugging. Sets up a game with players and assigns roles.
+    Can kill players with player.kill(), can view players' statuses with game_state(),
+    and can test investigate specific players with find_players(...)"""
+
+    class DummyUser:
+        """A dummy user class to emulate the discord API user object.
+        Attributes: id (int), name (string)"""
+        def __init__(self, id, name):
+            self.id = id
+            self.name = name
+
+    def game_state(game):
+        if not game.in_setup:
+            print("id name     role      team               alive")
+            for player in game.players_alive + game.players_dead:
+                print('{:2} {:8} {:9} {:13} {!s:5}'.format(player.user.id, player.user.name, player.role.name,
+                                                           player.role.team, player.alive))
+
+        else:
+            print("SETUP", "id name")
+            for player in game.players_alive + game.players_dead:
+                print('{:2} {:8}'.format(player.user.id, player.user.name,))
+
+    w_game = WerewolfGame()
+
+    test_user_list = [DummyUser(1, 'Raph'), DummyUser(2, 'Martin'), DummyUser(3, 'Louis'), DummyUser(4, 'Tom')]
+    test_role_list = ['Villager', 'Villager', 'Seer', 'Werewolf']
+
+    for user in test_user_list:
+        w_game.add_player(user)
+    for role_name in test_role_list:
+        w_game.add_role(role_name)
+
+    # game_state(w_game)
+
+    w_game.assign_roles()
+
+    print('')
+    game_state(w_game)
