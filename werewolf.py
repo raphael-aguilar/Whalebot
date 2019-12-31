@@ -15,15 +15,29 @@ class TeamAppearance(Enum):
     Werewolf = auto()
     Villager = auto()
 
+class GameSetup(Enum):
+    PlayerAdding = auto()
+    RoleSelection = auto()
+    Setup = auto()
+    Complete = auto()
+
 
 class WerewolfGame:
     """The class for the game engine."""
 
     # SETUP
 
-    def __init__(self):
+    def __init__(self, head_player):
+        """Takes a list of tuples for players, the tuples will be (player_id, player_name)"""
+
+        # Determines whether the game has been setup or not
+        self.game_setup = GameSetup.PlayerAdding
+
+        # The player who will setup the game and the characters/rules
+        self.head_player = head_player
 
         # lists of player objects, either alive or dead
+
         self.players_alive = []
         self.players_dead = []
 
@@ -33,6 +47,14 @@ class WerewolfGame:
 
         # Whether the game is still in setup phase, which allows for adding/removing players, etc.
         self.in_setup = True
+
+    async def setup_game(self):
+        
+        if self.game_setup == GameSetup.PlayerAdding:
+            await self.head_player.send("How many playerse are playing?")
+            await self.head_player.send("Yoyo piraka")
+ 
+
 
     def add_player(self, user):
         """Instantiates a new player to the game, and adds them to the game's.players_alive list.
