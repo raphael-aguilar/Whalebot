@@ -15,6 +15,7 @@ class TeamAppearance(Enum):
     Werewolf = auto()
     Villager = auto()
 
+
 class GameSetup(Enum):
     PlayerAdding = auto()
     RoleSelection = auto()
@@ -51,7 +52,7 @@ class WerewolfGame:
     async def setup_game(self):
         
         if self.game_setup == GameSetup.PlayerAdding:
-            await self.head_player.send("How many playerse are playing?")
+            await self.head_player.send("How many players are playing?")
             await self.head_player.send("Yoyo piraka")
  
 
@@ -282,10 +283,10 @@ if __name__ == "__main__":
             for player in game.players_alive + game.players_dead:
                 print('{:2} {:8}'.format(player.user.id, player.user.name,))
 
-    w_game = WerewolfGame()
-
     test_user_list = [DummyUser(1, 'Raph'), DummyUser(2, 'Martin'), DummyUser(3, 'Louis'), DummyUser(4, 'Tom')]
     test_role_list = ['Villager', 'Villager', 'Seer', 'Werewolf']
+
+    w_game = WerewolfGame(test_user_list[0])
 
     for user in test_user_list:
         w_game.add_player(user)
