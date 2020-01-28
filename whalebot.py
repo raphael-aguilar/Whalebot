@@ -1,5 +1,7 @@
 import discord
 
+from discord.ext import commands
+
 from command import prefix, Command
 from games import Game, running_game
 
@@ -11,7 +13,8 @@ def read_token():
 
 token = read_token()
 
-client = discord.Client()
+client = commands.Bot(command_prefix = prefix)
+# client = discord.Client()
 
 # Anything that is done at on bot startup
 @client.event
@@ -24,15 +27,21 @@ async def on_ready():
 async def on_message(message):
     
     # A command has been initiated
-    if message.content.startswith(prefix):
-        line_split = message.content[2:].split()
-        command = line_split[0]
-        args = line_split[1:]
+    # if message.content.startswith(prefix):
+    #     line_split = message.content[2:].split()
+    #     command = line_split[0]
+    #     args = line_split[1:]
 
-        print("command: " + command + "\nargs: " + str(args))
+    #     print("command: " + command + "\nargs: " + str(args))
 
-        if command in command_dict.keys():
-            await command_dict.get(command).execute(message, args)
+    #     if command in command_dict.keys():
+    #         await command_dict.get(command).execute(message, args)
+
+    await client.process_commands(message)
+
+@client.event
+async def on_message_delete(message):
+    pass
 
 class Help(Command):
 
@@ -63,6 +72,30 @@ class Commands(Command):
 
         print(reply)
         await message.channel.send(reply)
+
+
+
+# Commands
+@client.command(alias = ["help"])
+async def _info(ctx, *, post=""):
+
+    args = post.split()
+
+
+    if len(args) == 0:
+        await ctx.send("""Type: `"""+ prefix + """ + <command>` to use our commands, full list of commands in `""" + prefix + """commands`""")
+    elif len(args) == 1:
+        if args[0] in command_dict.keys():
+            await ctx.send(command_dict.get(args[0]).instructions)
+
+
+@client.command(aliases=["dindu"])
+async def tester(ctx, *, post=""):
+
+    poast = args.split()
+    print(type(args))
+    print(len(args))
+    print(args)
 
 # The command able to be used
 command_dict = {"help": Help,
