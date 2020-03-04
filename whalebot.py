@@ -14,6 +14,7 @@ def read_token():
 token = read_token()
 
 client = commands.Bot(command_prefix = prefix)
+client.remove_command('help')
 # client = discord.Client()
 
 # Anything that is done at on bot startup
@@ -76,8 +77,8 @@ class Commands(Command):
 
 
 # Commands
-@client.command(alias = ["help"])
-async def _info(ctx, *, post=""):
+@client.command()
+async def help(ctx, *, post=""):
 
     args = post.split()
 
@@ -89,6 +90,22 @@ async def _info(ctx, *, post=""):
             await ctx.send(command_dict.get(args[0]).instructions)
 
 
+@client.command()
+async def commands(ctx, *, post=""):
+
+    args = post.split()
+
+    reply = "Commands:"
+
+    for name, instance in sorted(command_dict.items()):
+        line = "\n`" + prefix + name + "`" + " - " + instance.descriptor
+        print(line)
+        reply = reply + line
+
+    print(reply)
+    await ctx.send(reply)
+
+
 @client.command(aliases=["dindu"])
 async def tester(ctx, *, post=""):
 
@@ -96,6 +113,25 @@ async def tester(ctx, *, post=""):
     print(type(args))
     print(len(args))
     print(args)
+
+
+@client.command()
+async def game(ctx, *, post=""):
+    args = post.split()
+
+    if len(args) == 0:
+        await ctx.send("You need to pick a game to play")
+        return
+
+    elif len(args) != 1:
+        return
+
+    if args[0] in games_dict or True:
+        
+        member = message.author
+        running_game = games_dict.get(args[0])(member)
+
+        await running_game.setup_game()
 
 # The command able to be used
 command_dict = {"help": Help,

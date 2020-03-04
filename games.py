@@ -5,19 +5,19 @@ from command import prefix, Command
 from werewolf import WerewolfGame
 
 
-@client.command(aliases=["game"])
-async def game(ctx, *, post=""):
-    args = post.split()
+# @client.command(aliases=["game"])
+# async def game(ctx, *, post=""):
+#     args = post.split()
 
-    if len(args) != 1:
-        return
+#     if len(args) != 1:
+#         return
 
-    if args[0] in games_dict or True:
+#     if args[0] in games_dict or True:
         
-        member = message.author
-        running_game = games_dict.get(args[0])(member)
+#         member = message.author
+#         running_game = games_dict.get(args[0])(member)
 
-        await running_game.setup_game()
+#         await running_game.setup_game()
 
 
 
