@@ -27,17 +27,10 @@ async def on_ready():
 @client.event
 async def on_message(message):
     
-    # A command has been initiated
-    # if message.content.startswith(prefix):
-    #     line_split = message.content[2:].split()
-    #     command = line_split[0]
-    #     args = line_split[1:]
+    # Prints the details of the message
+    print(message.channel.name + " -> " + message.author.name + ": " + message.content)
 
-    #     print("command: " + command + "\nargs: " + str(args))
-
-    #     if command in command_dict.keys():
-    #         await command_dict.get(command).execute(message, args)
-
+    # Processes any other commands
     await client.process_commands(message)
 
 @client.event
