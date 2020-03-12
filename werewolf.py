@@ -25,6 +25,8 @@ class GameSetup(Enum):
 class WerewolfGame:
     """The class for the game engine."""
 
+    game_name = "Werewolf"
+
     # SETUP
 
     def __init__(self, head_player):
