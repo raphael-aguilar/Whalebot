@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 
 from command import prefix, Command
-from games import Game, running_game
+from games import Game, running_game, games_dict
 
 
 def read_token():
@@ -128,10 +128,21 @@ async def game(ctx, *, post=""):
 
     if args[0] in games_dict or True:
         
-        member = message.author
+        member = ctx.message.author
         running_game = games_dict.get(args[0])(member)
 
         await running_game.setup_game()
+
+@client.command()
+async def activegame(ctx, *, post=""):
+    args = post.split()
+
+    await ctx.send(running_game)
+
+    if running_game:
+        await ctx.send(running_game.game_name)
+    else:
+        await ctx.send("There is no game running")
 
 # The command able to be used
 command_dict = {"help": Help,
