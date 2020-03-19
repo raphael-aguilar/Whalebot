@@ -99,10 +99,14 @@ async def commands(ctx, *, post=""):
     await ctx.send(reply)
 
 
-@client.command(aliases=["dindu"])
+@client.command()
 async def tester(ctx, *, post=""):
 
-    poast = args.split()
+    if running_game:
+        print("wtf")
+
+    args = post.split()
+
     print(type(args))
     print(len(args))
     print(args)
@@ -112,8 +116,14 @@ async def tester(ctx, *, post=""):
 async def game(ctx, *, post=""):
     args = post.split()
 
+
+    # Checks if a game is actives
+    if gameactive():
+        await ctx.send("`There is already a game running on this server\nOnly one game can be played at a time currently`")
+        return
+
     if len(args) == 0:
-        await ctx.send("You need to pick a game to play")
+        await ctx.send("`You need to pick a game to play`")
         return
 
     elif len(args) != 1:
@@ -126,16 +136,24 @@ async def game(ctx, *, post=""):
 
         await running_game.setup_game()
 
+        
+# Discord function to check if a game is active
 @client.command()
 async def activegame(ctx, *, post=""):
     args = post.split()
 
-    await ctx.send(running_game)
-
-    if running_game:
+    if gameactive():
         await ctx.send(running_game.game_name)
     else:
         await ctx.send("There is no game running")
+
+# Returns True if a game is active
+def gameactive():
+    if running_game:
+        return True
+    return False
+
+
 
 # The command able to be used
 command_dict = {"help": Help,
