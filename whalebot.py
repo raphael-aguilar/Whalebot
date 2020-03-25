@@ -239,32 +239,15 @@ async def activegame(ctx, *, post=""):
 """ Game Template """
 
 class Game():
-    instructions = """Use `""" + prefix + """game <game>` to initiate the given game"""
-    descriptor = """Used to play games within the discord server"""
+    
+    def __init__(self, head_player):
 
-    @staticmethod
-    async def execute(message, args):
+        # Determines whether the game has been setup or not
+        self.game_setup = GameSetup.PlayerAdding
 
-        if len(args) != 1:
-            return
+        # The player who will setup the game and the characters/rules
+        self.head_player = head_player
 
-
-
-        if args[0] in games_dict or True:
-            
-            member = message.author
-            running_game = games_dict.get(args[0])(member)
-
-            await running_game.setup_game()
-
-
-        await message.channel.send("This functionality is still being made.")
-        pass
-
-    def game_running(self):
-        if running_game:
-            return True
-        return False
 
 games_dict = {
     "werewolf": WerewolfGame
@@ -292,7 +275,7 @@ class GameSetup(Enum):
     Complete = auto()
 
 
-class WerewolfGame:
+class WerewolfGame(Game):
     """The class for the game engine."""
 
     game_name = "Werewolf"
@@ -300,13 +283,10 @@ class WerewolfGame:
     # SETUP
 
     def __init__(self, head_player):
+        super(self, head_player)
         """Takes a list of tuples for players, the tuples will be (player_id, player_name)"""
 
-        # Determines whether the game has been setup or not
-        self.game_setup = GameSetup.PlayerAdding
-
-        # The player who will setup the game and the characters/rules
-        self.head_player = head_player
+        
 
         # lists of player objects, either alive or dead
 
