@@ -195,6 +195,8 @@ command_dict = {"help": Help,
 
 """ Game Functions """
 
+# The game that is currently being played
+running_game = None
 
 @client.command()
 async def game(ctx, *, post=""):
@@ -234,12 +236,7 @@ async def activegame(ctx, *, post=""):
 
 # ----------------------------------------------------------------------- #
 
-""" Game Functions """
-
-
-# The game that is currently being played
-running_game = None
-
+""" Game Template """
 
 class Game():
     instructions = """Use `""" + prefix + """game <game>` to initiate the given game"""
