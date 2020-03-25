@@ -3,3 +3,4 @@ token.txt
 __pycache__
 __pycache__/games.cpython-36.pyc
 __pycache__/werewolf.cpython-36.pyc
+.vscode/launch.json
