@@ -255,7 +255,7 @@ games_dict = {
 
 # ----------------------------------------------------------------------- #
 
-""" Werewolf """
+""" Werewolf Game """
 
 class TeamAlign(Enum):
     """Player Role team attributes"""
